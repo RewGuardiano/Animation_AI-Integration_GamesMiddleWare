@@ -4,7 +4,7 @@
 PlayerSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 26
-  productGUID: 033a3c52bd26490449ffe61de2b5482a
+  productGUID: 9cca25343c6eede4bbf05057e75d78de
   AndroidProfiler: 0
   AndroidFilterTouchesWhenObscured: 0
   AndroidEnableSustainedPerformanceMode: 0
@@ -13,7 +13,7 @@ PlayerSettings:
   useOnDemandResources: 0
   accelerometerFrequency: 60
   companyName: DefaultCompany
-  productName: Animaition GM New
+  productName: GamesMiddleware Animations
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 1}
@@ -677,14 +677,14 @@ PlayerSettings:
   apiCompatibilityLevelPerPlatform: {}
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
-  metroPackageName: Animaition GM New
+  metroPackageName: GamesMiddleware Animations
   metroPackageVersion: 
   metroCertificatePath: 
   metroCertificatePassword: 
   metroCertificateSubject: 
   metroCertificateIssuer: 
   metroCertificateNotAfter: 0000000000000000
-  metroApplicationDescription: Animaition GM New
+  metroApplicationDescription: GamesMiddleware Animations
   wsaImages: {}
   metroTileShortName: 
   metroTileShowName: 0
@@ -754,10 +754,10 @@ PlayerSettings:
   apiCompatibilityLevel: 6
   activeInputHandler: 0
   windowsGamepadBackendHint: 0
-  cloudProjectId: fa378bfc-f8f2-4ef0-842c-1bbeb8821962
+  cloudProjectId: a8129d75-71a9-473c-82dd-242f5b4e8ec4
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: Animaition GM New
+  projectName: GamesMiddleware Animations 2024-10-14_21-32-44
   organizationId: rewg
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
