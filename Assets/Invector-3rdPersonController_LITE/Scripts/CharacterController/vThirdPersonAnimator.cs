@@ -21,12 +21,14 @@ namespace Invector.vCharacterController
             animator.SetBool(vAnimatorParameters.IsSprinting, isSprinting);
             animator.SetBool(vAnimatorParameters.IsGrounded, isGrounded);
             animator.SetFloat(vAnimatorParameters.GroundDistance, groundDistance);
+          
 
-
-           
-
-
-
+           /* if (isPunching)
+            {
+                animator.SetTrigger(vAnimatorParameters.isPunching);
+                isPunching = false; // Reset after triggering
+            }
+           */
 
             if (isStrafing)
             {
@@ -65,7 +67,7 @@ namespace Invector.vCharacterController
         public static int IsStrafing = Animator.StringToHash("IsStrafing");
         public static int IsSprinting = Animator.StringToHash("IsSprinting");
         public static int GroundDistance = Animator.StringToHash("GroundDistance");
-        public static int IsPunching = Animator.StringToHash("IsPunching");
+        public static int isPunching = Animator.StringToHash("isPunching");
         
     }
 }

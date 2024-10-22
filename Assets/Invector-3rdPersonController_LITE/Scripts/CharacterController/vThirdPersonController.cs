@@ -42,7 +42,7 @@ namespace Invector.vCharacterController
                 MoveCharacter(moveDirection);
 
             if (Input.GetKeyDown(KeyCode.P))
-                animator.SetTrigger("isPunching");
+                animator.SetTrigger(vAnimatorParameters.isPunching);
 
 
         }
@@ -135,5 +135,18 @@ namespace Invector.vCharacterController
             else
                 animator.CrossFadeInFixedTime("JumpMove", .2f);
         }
+/*
+        public virtual void Punch() // Add this method for punching
+        {
+            isPunching = true; // Set punching state
+        }
+
+
+        protected virtual void PunchInput() // Add this method for punch input
+        {
+            if (Input.GetKeyDown(KeyCode.P)) // Use your defined key for punching
+                cc.Punch();
+        }
+*/
     }
 }
