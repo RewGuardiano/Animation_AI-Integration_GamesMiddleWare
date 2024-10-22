@@ -16,6 +16,10 @@ namespace Invector.vCharacterController
 
             if (useRootMotion)
                 MoveCharacter(moveDirection);
+
+
+
+
         }
 
         public virtual void ControlLocomotionType()
@@ -36,6 +40,11 @@ namespace Invector.vCharacterController
 
             if (!useRootMotion)
                 MoveCharacter(moveDirection);
+
+            if (Input.GetKeyDown(KeyCode.P))
+                animator.SetTrigger("isPunching");
+
+
         }
 
         public virtual void ControlRotationType()
@@ -76,6 +85,8 @@ namespace Invector.vCharacterController
             {
                 moveDirection = new Vector3(inputSmooth.x, 0, inputSmooth.z);
             }
+
+          
         }
 
         public virtual void Sprint(bool value)
