@@ -12,6 +12,7 @@ namespace Invector.vCharacterController
         public KeyCode jumpInput = KeyCode.Space;
         public KeyCode strafeInput = KeyCode.Tab;
         public KeyCode sprintInput = KeyCode.LeftShift;
+        public KeyCode punchInput = KeyCode.P; // Add punch input
 
         [Header("Camera Input")]
         public string rotateCameraXInput = "Mouse X";
@@ -22,7 +23,7 @@ namespace Invector.vCharacterController
         [HideInInspector] public Camera cameraMain;
 
         #endregion
-
+       
         protected virtual void Start()
         {
             InitilizeController();
@@ -79,6 +80,8 @@ namespace Invector.vCharacterController
             SprintInput();
             StrafeInput();
             JumpInput();
+            PunchInput(); // Call the new PunchInput method
+
         }
 
         public virtual void MoveInput()
@@ -143,6 +146,13 @@ namespace Invector.vCharacterController
         {
             if (Input.GetKeyDown(jumpInput) && JumpConditions())
                 cc.Jump();
+        }
+        protected virtual void PunchInput()
+        {
+            if (Input.GetKeyDown(punchInput))
+            {
+                cc.Punch(); // Call the Punch method in the controller
+            }
         }
 
         #endregion       

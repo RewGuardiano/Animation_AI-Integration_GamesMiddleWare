@@ -105,6 +105,7 @@ namespace Invector.vCharacterController
 
         #endregion
 
+        public bool isPunching; // New variable for punching
         public void Init()
         {
             animator = GetComponent<Animator>();
@@ -143,6 +144,9 @@ namespace Invector.vCharacterController
             colliderHeight = GetComponent<CapsuleCollider>().height;
 
             isGrounded = true;
+
+            animator = GetComponent<Animator>();
+            animator.updateMode = AnimatorUpdateMode.AnimatePhysics;
         }
 
         public virtual void UpdateMotor()
@@ -152,8 +156,25 @@ namespace Invector.vCharacterController
             ControlJumpBehaviour();
             AirControl();
 
-          
+            // Stop movement when punching
+            if (Input.GetKeyDown(KeyCode.P))
+            {
+                Punch();
+            }
+
+
         }
+        public void Punch()
+        {
+            if (!animator)
+            {
+                Debug.LogError("Animator is null in vThirdPersonMotor. Cannot set trigger for isPunching.");
+                return;
+            }
+            animator.SetTrigger("IsPunching");  // Set Animator parameter
+        }
+
+
 
         #region Locomotion
 
@@ -364,6 +385,7 @@ namespace Invector.vCharacterController
                 groundDistance = (float)System.Math.Round(dist, 2);
             }
         }
+       
 
         public virtual float GroundAngle()
         {
@@ -400,5 +422,7 @@ namespace Invector.vCharacterController
             [Tooltip("Speed to Sprint using rigidbody or extra speed if you're using RootMotion")]
             public float sprintSpeed = 6f;
         }
+
+       
     }
 }

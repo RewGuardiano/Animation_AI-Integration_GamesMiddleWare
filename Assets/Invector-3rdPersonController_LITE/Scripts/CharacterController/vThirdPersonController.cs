@@ -4,6 +4,7 @@ namespace Invector.vCharacterController
 {
     public class vThirdPersonController : vThirdPersonAnimator
     {
+        
         public virtual void ControlAnimatorRootMotion()
         {
             if (!this.enabled) return;
@@ -21,6 +22,8 @@ namespace Invector.vCharacterController
 
 
         }
+     
+
 
         public virtual void ControlLocomotionType()
         {
@@ -41,8 +44,7 @@ namespace Invector.vCharacterController
             if (!useRootMotion)
                 MoveCharacter(moveDirection);
 
-            if (Input.GetKeyDown(KeyCode.P))
-                animator.SetTrigger(vAnimatorParameters.isPunching);
+         
 
 
         }
@@ -118,6 +120,8 @@ namespace Invector.vCharacterController
             }
         }
 
+      
+
         public virtual void Strafe()
         {
             isStrafing = !isStrafing;
@@ -135,18 +139,10 @@ namespace Invector.vCharacterController
             else
                 animator.CrossFadeInFixedTime("JumpMove", .2f);
         }
-/*
-        public virtual void Punch() // Add this method for punching
-        {
-            isPunching = true; // Set punching state
-        }
+
+      
 
 
-        protected virtual void PunchInput() // Add this method for punch input
-        {
-            if (Input.GetKeyDown(KeyCode.P)) // Use your defined key for punching
-                cc.Punch();
-        }
-*/
+
     }
 }
