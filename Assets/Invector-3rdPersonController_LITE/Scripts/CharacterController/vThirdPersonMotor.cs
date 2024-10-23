@@ -156,11 +156,7 @@ namespace Invector.vCharacterController
             ControlJumpBehaviour();
             AirControl();
 
-            // Stop movement when punching
-            if (Input.GetKeyDown(KeyCode.P))
-            {
-                Punch();
-            }
+          
 
 
         }
