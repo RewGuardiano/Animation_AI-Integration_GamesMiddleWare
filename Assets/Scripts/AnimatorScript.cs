@@ -13,7 +13,7 @@ public class AnimatorScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
+       animator.GetComponent<Animator>();
     }
 
     // Update is called once per frame
@@ -21,20 +21,9 @@ public class AnimatorScript : MonoBehaviour
     {
 
 
-        if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D))
+        if (Input.GetKey(KeyCode.W))
         {
-            // Set the walking animation
             animator.SetBool("IsWalking", true);
-
-            // Calculate the movement direction
-            Vector3 movement = Vector3.zero;
-            if (Input.GetKey(KeyCode.W)) movement += Vector3.forward;
-            if (Input.GetKey(KeyCode.S)) movement += Vector3.back;
-            if (Input.GetKey(KeyCode.A)) movement += Vector3.left;
-            if (Input.GetKey(KeyCode.D)) movement += Vector3.right;
-
-            // Move the character
-            transform.Translate(movement.normalized * speed * Time.deltaTime);
         }
       
         else
