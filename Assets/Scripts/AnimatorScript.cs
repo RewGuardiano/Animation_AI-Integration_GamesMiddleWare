@@ -4,11 +4,14 @@ using Unity.Burst.Intrinsics;
 using Unity.VisualScripting;
 using UnityEditor.Animations;
 using UnityEngine;
+using UnityEngine.InputSystem.XR;
 
 public class AnimatorScript : MonoBehaviour
 {
 
     public Animator animator;
+   
+    
     public float speed = 1.0f;
     // Start is called before the first frame update
     void Start()
@@ -19,16 +22,9 @@ public class AnimatorScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        
 
-
-        if (Input.GetKey(KeyCode.W))
-        {
-            animator.SetBool("IsWalking", true);
-        }
-      
-        else
-        {
-            animator.SetBool("IsWalking", false);
-        }
     }
+
+    
 }
