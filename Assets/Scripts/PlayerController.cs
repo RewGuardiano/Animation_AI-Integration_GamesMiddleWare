@@ -5,24 +5,32 @@ using UnityEngine.EventSystems;
 
 public class PlayerController : MonoBehaviour
 {
-     [SerializeField] float walkSpeed = 3f;  // Walking speed
-    [SerializeField] float runSpeed = 7f;   // Running speed when Shift is held
-
+     [SerializeField] float walkSpeed = 1f;  // Walking speed
+    [SerializeField] float runSpeed = 5f;   // Running speed when Shift is held
     [SerializeField] float rotationspeed = 500f;
+
+
+    [Header("Ground Check Settings")]
+    [SerializeField] float groundCheckRadius = 0.2f;
+    [SerializeField] Vector3 groundCheckOffset;
+    [SerializeField] LayerMask groundLayer;
+    float ySpeed;
 
     Quaternion targetRotation;
 
     Animator animator;
 
-    
+    [SerializeField]  CharacterController characterController;
+
+    bool isGrounded;
 
 
     CameraController cameraController;
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         cameraController = Camera.main.GetComponent<CameraController>();
-
+        characterController = characterController.GetComponent<CharacterController>();
         animator = GetComponent<Animator>();
     }
 
@@ -51,9 +59,25 @@ public class PlayerController : MonoBehaviour
         Vector3 moveDirection = cameraController.PlanarRotation * moveInput;
 
 
+        GroundCheck();
+        if (isGrounded) 
+        {
+            ySpeed = -0.5f;
+        }
+        else
+        {
+            ySpeed += Physics.gravity.y * Time.deltaTime;// increases the y speed if the player is falling 
+        }
+
+        characterController.Move(moveDirection * currentSpeed * Time.deltaTime);
+
+        var velocity = moveDirection * currentSpeed;
+        velocity.y = ySpeed;
+
+
         if (moveInput.magnitude > 0)
         {
-            transform.position += moveDirection * currentSpeed * Time.deltaTime;
+            characterController.Move(moveDirection * currentSpeed * Time.deltaTime);
             targetRotation = Quaternion.LookRotation(moveDirection);
         }
         transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation,rotationspeed * Time.deltaTime); //smoother character rotation
@@ -63,5 +87,16 @@ public class PlayerController : MonoBehaviour
         animator.SetFloat("vertical", adjustedVertical, 0.2f, Time.deltaTime); // Use adjusted vertical for running
 
 
+    }
+    void GroundCheck()
+    {
+       isGrounded =  Physics.CheckSphere(transform.TransformPoint(groundCheckOffset), groundCheckRadius, groundLayer);// to check if the player is standing on the ground 
+
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = new Color(0,1,0,0.5f);
+        Gizmos.DrawSphere(transform.TransformPoint(groundCheckOffset), groundCheckRadius);
     }
 }
