@@ -40,6 +40,11 @@ public class PlayerController : MonoBehaviour
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
 
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            animator.SetTrigger("isPunching");
+        }
+
         bool isRunning = Input.GetKey(KeyCode.LeftShift) && v > 0; // Running only when moving forward with Shift held
 
         // Adjust speed and animation input based on walking or running
