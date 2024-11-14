@@ -1,13 +1,24 @@
+using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+
 
 public class PlayerController : MonoBehaviour
 {
      [SerializeField] float walkSpeed = 1f;  // Walking speed
     [SerializeField] float runSpeed = 5f;   // Running speed when Shift is held
     [SerializeField] float rotationspeed = 500f;
+
+    [Header("IK Settings")]
+    [SerializeField] public Transform pickupTarget;
+    public float ikWeight = 1f;
+    public float pickupRange = 2f;
+    [SerializeField] public Transform Hand;
+    private bool isPickingUp = false;
+    private GameObject currentPickupObject;
+
 
 
     [Header("Ground Check Settings")]
@@ -43,6 +54,20 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.P))
         {
             animator.SetTrigger("isPunching");
+        }
+
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+
+            animator.SetTrigger("PickUp");
+
+        }
+
+        if(Input.GetKeyDown(KeyCode.T))
+        {
+
+            animator.SetTrigger("isThrowing");
+
         }
 
         bool isRunning = Input.GetKey(KeyCode.LeftShift) && v > 0; // Running only when moving forward with Shift held
@@ -92,6 +117,9 @@ public class PlayerController : MonoBehaviour
         animator.SetFloat("vertical", adjustedVertical, 0.2f, Time.deltaTime); // Use adjusted vertical for running
 
 
+      
+
+
     }
     void GroundCheck()
     {
@@ -99,6 +127,9 @@ public class PlayerController : MonoBehaviour
 
     }
 
+   
+    
+    
     private void OnDrawGizmos()
     {
         Gizmos.color = new Color(0,1,0,0.5f);
