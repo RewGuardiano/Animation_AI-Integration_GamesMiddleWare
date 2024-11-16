@@ -5,6 +5,8 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 
+
+
 public class PlayerController : MonoBehaviour
 {
      [SerializeField] float walkSpeed = 1f;  // Walking speed
@@ -12,12 +14,14 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float rotationspeed = 500f;
 
     [Header("IK Settings")]
-    [SerializeField] public Transform pickupTarget;
     public float ikWeight = 1f;
     public float pickupRange = 2f;
     [SerializeField] public Transform Hand;
     private bool isPickingUp = false;
-    private GameObject currentPickupObject;
+     ObjectScript focusObject;
+    private bool isHoldingObject = false;
+
+    private List<ObjectScript> allPickupItems = new List<ObjectScript>();
 
 
 
@@ -43,6 +47,61 @@ public class PlayerController : MonoBehaviour
         cameraController = Camera.main.GetComponent<CameraController>();
         characterController = characterController.GetComponent<CharacterController>();
         animator = GetComponent<Animator>();
+
+        // Manually add objects for testing (you can add real objects here)
+        allPickupItems.AddRange(FindObjectsOfType<ObjectScript>());
+
+        // Log the objects added to the list
+        foreach (ObjectScript obj in allPickupItems)
+        {
+            Debug.Log("Added object: " + obj.name);
+        }
+    }
+
+    // Finds the closest pickupable object within range
+    private ObjectScript ClosestObject()
+    {
+        ObjectScript closestObject = null;
+        float closestDistance = float.MaxValue;
+
+        foreach (ObjectScript obj in allPickupItems)
+        {
+            float distance = Vector3.Distance(transform.position, obj.transform.position);
+            if (distance < closestDistance && distance <= pickupRange)
+            {
+                closestDistance = distance;
+                closestObject = obj;
+            }
+        }
+        return closestObject;
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        // Check if the object has the "Pickup" tag and if it has an ObjectScript component
+        if (other.CompareTag("Pickupable"))
+        {
+            ObjectScript objectScript = other.GetComponent<ObjectScript>();
+            if (objectScript != null && !allPickupItems.Contains(objectScript)) // Only add if not already in the list
+            {
+                allPickupItems.Add(objectScript);
+                Debug.Log("Added object to pickup list: " + objectScript.name);
+            }
+        }
+    }
+
+    void OnTriggerExit(Collider other)
+    {
+        // Remove the object from the pickup list when the player exits the trigger zone
+        if (other.CompareTag("Pickupable"))
+        {
+            ObjectScript objectScript = other.GetComponent<ObjectScript>();
+            if (objectScript != null)
+            {
+                allPickupItems.Remove(objectScript);
+                Debug.Log("Removed object from pickup list: " + objectScript.name);
+            }
+        }
     }
 
     // Update is called once per frame
@@ -56,19 +115,28 @@ public class PlayerController : MonoBehaviour
             animator.SetTrigger("isPunching");
         }
 
-        if (Input.GetKeyDown(KeyCode.E))
+        if (Input.GetKeyDown(KeyCode.E) && !isHoldingObject)
         {
+            focusObject = ClosestObject();  // Assign closest object
 
-            animator.SetTrigger("PickUp");
-
+            if (focusObject != null)
+            {
+                isPickingUp = true;
+                animator.SetTrigger("PickUp");
+                Debug.Log("Attempting to pick up: " + focusObject.name);
+            }
+            else
+            {
+                Debug.Log("No object to pick up.");
+            }
         }
 
-        if(Input.GetKeyDown(KeyCode.T))
+        // Throw logic
+        if (Input.GetKeyDown(KeyCode.T) && isHoldingObject)
         {
-
-            animator.SetTrigger("isThrowing");
-
+            ThrowObject();
         }
+
 
         bool isRunning = Input.GetKey(KeyCode.LeftShift) && v > 0; // Running only when moving forward with Shift held
 
@@ -127,12 +195,97 @@ public class PlayerController : MonoBehaviour
 
     }
 
-   
-    
-    
+
+    // IK logic for pickup
+    private void OnAnimatorIK(int layerIndex)
+    {
+        if (isPickingUp && focusObject != null)
+        {
+            Vector3 directionToObject = (focusObject.transform.position - transform.position).normalized;
+            float distanceToObject = Vector3.Distance(transform.position, focusObject.transform.position);
+            float clampedDistance = Mathf.Min(distanceToObject, pickupRange);
+
+            Vector3 targetPosition = transform.position + directionToObject * clampedDistance;
+
+            animator.SetIKPositionWeight(AvatarIKGoal.RightHand, ikWeight);
+            animator.SetIKRotationWeight(AvatarIKGoal.RightHand, ikWeight);
+            animator.SetIKPosition(AvatarIKGoal.RightHand, targetPosition);
+            animator.SetIKRotation(AvatarIKGoal.RightHand, Quaternion.LookRotation(directionToObject));
+
+            if (Vector3.Distance(Hand.position, focusObject.transform.position) <= 0.4f)
+            {
+                AttachObjectToHand();
+                isPickingUp = false;
+                isHoldingObject = true;
+            }
+        }
+        else
+        {
+            // Reset IK weights
+            animator.SetIKPositionWeight(AvatarIKGoal.RightHand, 0);
+            animator.SetIKRotationWeight(AvatarIKGoal.RightHand, 0);
+        }
+    }
+
+    // Attaches the object to the hand
+    private void AttachObjectToHand()
+    {
+        focusObject.transform.SetParent(Hand);
+        focusObject.transform.localPosition = Vector3.zero;
+        focusObject.transform.localRotation = Quaternion.identity;
+
+        Rigidbody rb = focusObject.GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.isKinematic = true;
+        }
+
+        Collider col = focusObject.GetComponent<Collider>();
+        if (col != null)
+        {
+            col.enabled = false;
+        }
+    }
+
+
+    private void ThrowObject()
+    {
+        if (focusObject != null)
+        {
+            animator.SetTrigger("isThrowing");
+
+            focusObject.transform.SetParent(null);
+
+            Rigidbody rb = focusObject.GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                rb.isKinematic = false;
+
+                Vector3 throwDirection = transform.forward + Vector3.up * 0.6f;
+                float throwForce = 10f;
+                rb.AddForce(throwDirection * throwForce, ForceMode.Impulse);
+            }
+
+            Collider col = focusObject.GetComponent<Collider>();
+            if (col != null)
+            {
+                col.enabled = true;
+            }
+
+            focusObject = null;
+            isHoldingObject = false;
+        }
+    }
+
+
+
+
+
     private void OnDrawGizmos()
     {
         Gizmos.color = new Color(0,1,0,0.5f);
         Gizmos.DrawSphere(transform.TransformPoint(groundCheckOffset), groundCheckRadius);
+
+        
     }
 }
