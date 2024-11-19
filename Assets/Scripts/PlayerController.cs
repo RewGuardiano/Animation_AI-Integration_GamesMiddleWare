@@ -21,7 +21,7 @@ public class PlayerController : MonoBehaviour
      ObjectScript focusObject;
     private bool isHoldingObject = false;
 
-    private List<ObjectScript> allPickupItems = new List<ObjectScript>();
+    public List<ObjectScript> allPickupItems = new List<ObjectScript>();
 
 
 
@@ -76,33 +76,7 @@ public class PlayerController : MonoBehaviour
         return closestObject;
     }
 
-    void OnTriggerEnter(Collider other)
-    {
-        // Check if the object has the "Pickup" tag and if it has an ObjectScript component
-        if (other.CompareTag("Pickupable"))
-        {
-            ObjectScript objectScript = other.GetComponent<ObjectScript>();
-            if (objectScript != null && !allPickupItems.Contains(objectScript)) // Only add if not already in the list
-            {
-                allPickupItems.Add(objectScript);
-                Debug.Log("Added object to pickup list: " + objectScript.name);
-            }
-        }
-    }
-
-    void OnTriggerExit(Collider other)
-    {
-        // Remove the object from the pickup list when the player exits the trigger zone
-        if (other.CompareTag("Pickupable"))
-        {
-            ObjectScript objectScript = other.GetComponent<ObjectScript>();
-            if (objectScript != null)
-            {
-                allPickupItems.Remove(objectScript);
-                Debug.Log("Removed object from pickup list: " + objectScript.name);
-            }
-        }
-    }
+    
 
     // Update is called once per frame
     void Update()
@@ -199,7 +173,7 @@ public class PlayerController : MonoBehaviour
     // IK logic for pickup
     private void OnAnimatorIK(int layerIndex)
     {
-        if (isPickingUp && focusObject != null)
+        if (isPickingUp && (focusObject != null))
         {
             Vector3 directionToObject = (focusObject.transform.position - transform.position).normalized;
             float distanceToObject = Vector3.Distance(transform.position, focusObject.transform.position);
@@ -212,7 +186,7 @@ public class PlayerController : MonoBehaviour
             animator.SetIKPosition(AvatarIKGoal.RightHand, targetPosition);
             animator.SetIKRotation(AvatarIKGoal.RightHand, Quaternion.LookRotation(directionToObject));
 
-            if (Vector3.Distance(Hand.position, focusObject.transform.position) <= 0.4f)
+            if (Vector3.Distance(Hand.position, focusObject.transform.position) <= 1f)
             {
                 AttachObjectToHand();
                 isPickingUp = false;
