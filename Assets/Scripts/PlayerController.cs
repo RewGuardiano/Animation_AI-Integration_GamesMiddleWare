@@ -1,13 +1,14 @@
 using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 
 
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : NetworkBehaviour
 {
      [SerializeField] float walkSpeed = 1f;  // Walking speed
     [SerializeField] float runSpeed = 5f;   // Running speed when Shift is held
