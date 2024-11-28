@@ -6,22 +6,39 @@ using UnityEngine.UI;
 
 public class ObjectManager : MonoBehaviour
 {
-    public GameObject snowBallCloneTemplate;
+    
+    public Button SpawnButton;
+    public GameObject snowBallCloneTemplate; 
+ 
+
+
+    public void Start()
+    {
+        SpawnButton.onClick.AddListener(ButtonClicked);
+    }
+
+
+    
 
     public void ButtonClicked()
     {
+        if (snowBallCloneTemplate == null)
+        {
+            Debug.LogError("snowBallCloneTemplate is not assigned!");
+            return;
+        }
+
         GameObject snowBallInstance = Instantiate(snowBallCloneTemplate);
 
         NetworkObject networkObject = snowBallInstance.GetComponent<NetworkObject>();
-        if (networkObject != null)
+        if (networkObject == null)
         {
-            networkObject.Spawn();
-        }
-        else
-        {
-            Debug.LogError("snowball prefab missing NetworkObject component");
+            Debug.LogError("NetworkObject component is missing on the snowball prefab!");
+            Destroy(snowBallInstance);
+            return;
         }
 
+        networkObject.Spawn();
     }
 }
 
