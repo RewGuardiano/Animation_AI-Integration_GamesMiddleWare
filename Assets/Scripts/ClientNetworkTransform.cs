@@ -1,18 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Netcode;
+using Unity.Netcode.Components;
 
-public class ClientNetworkTransform : MonoBehaviour
+public class ClientNetworkTransform : NetworkTransform
 {
-    // Start is called before the first frame update
-    void Start()
+   protected override bool OnIsServerAuthoritative()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        return false;
     }
 }
