@@ -5,8 +5,7 @@ using UnityEngine;
 
 public class ClientNetworkAnimator : NetworkTransform
 {
-    [SerializeField] public Animator animator;
-
+    [SerializeField] Animator animator;
     protected override bool OnIsServerAuthoritative()
     {
         return false;

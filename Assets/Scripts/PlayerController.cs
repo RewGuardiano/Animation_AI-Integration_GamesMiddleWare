@@ -11,7 +11,7 @@ using UnityEngine.EventSystems;
 public class PlayerController : NetworkBehaviour
 {
      [SerializeField] float walkSpeed = 1f;  // Walking speed
-    [SerializeField] float runSpeed = 5f;   // Running speed when Shift is held
+    [SerializeField] float runSpeed = 2f;   // Running speed when Shift is held
     [SerializeField] float rotationspeed = 500f;
 
     [Header("IK Settings")]
@@ -42,7 +42,9 @@ public class PlayerController : NetworkBehaviour
 
 
     CameraController cameraController;
-    // Start is called before the first frame update
+    
+
+ 
     void Awake()
     {
         cameraController = Camera.main.GetComponent<CameraController>();
@@ -56,6 +58,12 @@ public class PlayerController : NetworkBehaviour
         foreach (ObjectScript obj in allPickupItems)
         {
             Debug.Log("Added object: " + obj.name);
+        }
+
+        if (!IsOwner)
+        {
+            // Set the camera's follow target to this player
+            cameraController.SetFollowTarget(transform);
         }
     }
 
@@ -82,7 +90,7 @@ public class PlayerController : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!IsOwner) return;
+        
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
 

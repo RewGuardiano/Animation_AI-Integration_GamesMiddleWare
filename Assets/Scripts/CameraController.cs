@@ -9,7 +9,7 @@ public class CameraController : MonoBehaviour
 
     [SerializeField] float distance = 5;
 
-    [SerializeField] float rotationspeed = 2f;
+    [SerializeField] float rotationspeed = 1f;
 
 
     float rotationY;
@@ -35,7 +35,9 @@ public class CameraController : MonoBehaviour
 
     private void Update()
     {
-        invertXVal= (invertX) ? -1 : 1;
+        if (followTarget == null) return;
+
+        invertXVal = (invertX) ? -1 : 1;
         invertYVal= (invertY) ? -1 : 1;
 
         rotationY += Input.GetAxis("Mouse X") * invertXVal * rotationspeed;
@@ -52,8 +54,15 @@ public class CameraController : MonoBehaviour
        
         transform.rotation = targetRotation;
 
+        
+
     }
     public Quaternion PlanarRotation => Quaternion.Euler(0, rotationY, 0);//Properties function 
+
+    public void SetFollowTarget(Transform target)
+    {
+        followTarget = target;
+    }
 
 
 }

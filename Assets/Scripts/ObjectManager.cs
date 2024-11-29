@@ -6,39 +6,46 @@ using UnityEngine.UI;
 
 public class ObjectManager : MonoBehaviour
 {
-    
-    public Button SpawnButton;
-    public GameObject snowBallCloneTemplate; 
- 
+    [SerializeField] private Button clientButton;
+    [SerializeField] private Button hostButton;
 
+    private DummySpawner dummySpawner;
 
-    public void Start()
+    public void Awake()
     {
-        SpawnButton.onClick.AddListener(ButtonClicked);
+        hostButton.onClick.AddListener(StartHost);
+        clientButton.onClick.AddListener(StartClient);
+
+        
     }
 
-
-    
-
-    public void ButtonClicked()
+    public void StartHost()
     {
-        if (snowBallCloneTemplate == null)
+        if (NetworkManager.Singleton != null)
         {
-            Debug.LogError("snowBallCloneTemplate is not assigned!");
-            return;
+            NetworkManager.Singleton.StartHost();
+            Debug.Log("Host started.");
+
         }
-
-        GameObject snowBallInstance = Instantiate(snowBallCloneTemplate);
-
-        NetworkObject networkObject = snowBallInstance.GetComponent<NetworkObject>();
-        if (networkObject == null)
+        else
         {
-            Debug.LogError("NetworkObject component is missing on the snowball prefab!");
-            Destroy(snowBallInstance);
-            return;
+            Debug.LogError("NetworkManager not found!");
         }
+    }
 
-        networkObject.Spawn();
+    public void StartClient()
+    {
+        if (NetworkManager.Singleton != null)
+        {
+            NetworkManager.Singleton.StartClient();
+            Debug.Log("Client started.");
+        }
+        else
+        {
+            Debug.LogError("NetworkManager not found!");
+        }
     }
 }
+
+
 
