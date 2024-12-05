@@ -1,28 +1,27 @@
 using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro.Examples;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.EventSystems;
-
-
 
 
 public class PlayerController : NetworkBehaviour
 {
      [SerializeField] float walkSpeed = 1f;  // Walking speed
     [SerializeField] float runSpeed = 2f;   // Running speed when Shift is held
-    [SerializeField] float rotationspeed = 500f;
+    [SerializeField] float rotationspeed = 100f;
 
     [Header("IK Settings")]
     public float ikWeight = 1f;
-    public float pickupRange = 2f;
+    public float pickupRange = 5f;
     [SerializeField] public Transform Hand;
     private bool isPickingUp = false;
      ObjectScript focusObject;
     private bool isHoldingObject = false;
 
-    public List<ObjectScript> allPickupItems = new List<ObjectScript>();
+    List<ObjectScript> allPickupItems = new List<ObjectScript>();
 
 
 
@@ -38,18 +37,18 @@ public class PlayerController : NetworkBehaviour
 
     [SerializeField]  CharacterController characterController;
 
-    bool isGrounded;
+    private bool isGrounded;
+  
+
+     CameraController cameraController;
 
 
-    CameraController cameraController;
-    
-
- 
-    void Awake()
+    void Start()
     {
+
         cameraController = Camera.main.GetComponent<CameraController>();
         characterController = characterController.GetComponent<CharacterController>();
-        animator = GetComponent<Animator>();
+        if (animator == null) animator = GetComponent<Animator>();
 
         // Manually add objects for testing (you can add real objects here)
         allPickupItems.AddRange(FindObjectsOfType<ObjectScript>());
@@ -58,14 +57,29 @@ public class PlayerController : NetworkBehaviour
         foreach (ObjectScript obj in allPickupItems)
         {
             Debug.Log("Added object: " + obj.name);
+            Debug.Log("Total pickup items found: " + allPickupItems.Count);
+
         }
 
-        if (!IsOwner)
+        if (!IsOwner) return;
+
+            if (cameraController != null)
         {
-            // Set the camera's follow target to this player
+            Debug.Log("CameraController found. Assigning follow target.");
             cameraController.SetFollowTarget(transform);
         }
+        else
+        {
+            Debug.LogError("CameraController not found on the Main Camera.");
+        }
+
+        DisableCursor();
+
     }
+
+    
+
+
 
     // Finds the closest pickupable object within range
     private ObjectScript ClosestObject()
@@ -76,21 +90,42 @@ public class PlayerController : NetworkBehaviour
         foreach (ObjectScript obj in allPickupItems)
         {
             float distance = Vector3.Distance(transform.position, obj.transform.position);
+            Debug.Log("Checking distance to " + obj.name + ": " + distance);
             if (distance < closestDistance && distance <= pickupRange)
             {
                 closestDistance = distance;
                 closestObject = obj;
             }
         }
+
+        if (closestObject != null)
+        {
+            Debug.Log("Closest object found: " + closestObject.name);
+        }
+        else
+        {
+            Debug.Log("No object within pickup range.");
+        }
+
         return closestObject;
     }
-
     
+
 
     // Update is called once per frame
     void Update()
     {
-        
+        if (!IsOwner) return;
+
+        if (Input.GetKeyDown(KeyCode.LeftAlt))
+        {
+            EnableCursor();
+        }
+        else if (Input.GetKeyUp(KeyCode.LeftAlt))
+        {
+            DisableCursor();
+        }
+
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
 
@@ -101,13 +136,20 @@ public class PlayerController : NetworkBehaviour
 
         if (Input.GetKeyDown(KeyCode.E) && !isHoldingObject)
         {
-            focusObject = ClosestObject();  // Assign closest object
+            focusObject = ClosestObject(); // Assign closest object
 
             if (focusObject != null)
             {
                 isPickingUp = true;
                 animator.SetTrigger("PickUp");
                 Debug.Log("Attempting to pick up: " + focusObject.name);
+
+                // Call the server RPC with position and rotation
+                focusObject.PickupObjectServerRpc(Hand.position, Hand.rotation);
+
+                // Set flags
+                isPickingUp = false;
+                isHoldingObject = true;
             }
             else
             {
@@ -136,14 +178,14 @@ public class PlayerController : NetworkBehaviour
         {
             adjustedVertical = v;
         }
-
+      
         Vector3 moveInput = new Vector3(h, 0, v).normalized;
         Vector3 moveDirection = cameraController.PlanarRotation * moveInput;
 
 
         GroundCheck();
-        if (isGrounded) 
-        {
+        if (isGrounded)
+        { 
             ySpeed = -0.5f;
         }
         else
@@ -156,6 +198,7 @@ public class PlayerController : NetworkBehaviour
         var velocity = moveDirection * currentSpeed;
         velocity.y = ySpeed;
 
+        characterController.Move(velocity * Time.deltaTime);
 
         if (moveInput.magnitude > 0)
         {
@@ -173,9 +216,23 @@ public class PlayerController : NetworkBehaviour
 
 
     }
+
+    private void EnableCursor()
+    {
+        Cursor.lockState = CursorLockMode.None; // Unlock the cursor
+        Cursor.visible = true; // Make the cursor visible
+    }
+    private void DisableCursor()
+    {
+        Cursor.lockState = CursorLockMode.Locked; // Lock the cursor to the center of the screen
+        Cursor.visible = false; // Hide the cursor
+    }
+
     void GroundCheck()
     {
-       isGrounded =  Physics.CheckSphere(transform.TransformPoint(groundCheckOffset), groundCheckRadius, groundLayer);// to check if the player is standing on the ground 
+
+
+        isGrounded =  Physics.CheckSphere(transform.TransformPoint(groundCheckOffset), groundCheckRadius, groundLayer);// to check if the player is standing on the ground 
 
     }
 
@@ -260,10 +317,6 @@ public class PlayerController : NetworkBehaviour
             isHoldingObject = false;
         }
     }
-
-
-
-
 
     private void OnDrawGizmos()
     {

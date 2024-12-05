@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using Unity.Netcode.Components;
 using UnityEngine;
 
-public class ClientNetworkAnimator : NetworkTransform
+public class ClientNetworkAnimator : NetworkAnimator
 {
-    [SerializeField] Animator animator;
+
     protected override bool OnIsServerAuthoritative()
     {
         return false;
