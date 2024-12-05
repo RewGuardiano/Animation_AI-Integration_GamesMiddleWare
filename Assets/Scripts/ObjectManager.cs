@@ -1,4 +1,4 @@
-using System.Collections;
+ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
@@ -9,7 +9,8 @@ public class ObjectManager : MonoBehaviour
     [SerializeField] private Button clientButton;
     [SerializeField] private Button hostButton;
 
-    private DummySpawner dummySpawner;
+
+
 
     public void Awake()
     {
@@ -45,6 +46,8 @@ public class ObjectManager : MonoBehaviour
             Debug.LogError("NetworkManager not found!");
         }
     }
+
+   
 }
 
 

@@ -4,7 +4,6 @@ using UnityEngine;
 using Unity.Netcode;
 using UnityEngine.UI;
 
-
 public class ObjectSpawner : MonoBehaviour
 {
     public Button SpawnButton;
@@ -13,12 +12,20 @@ public class ObjectSpawner : MonoBehaviour
 
     public void Awake()
     {
-        SpawnButton.onClick.RemoveAllListeners(); // Remove any pre-existing listeners
+
+        
         SpawnButton.onClick.AddListener(SpawnBall);
     }
 
     public void SpawnBall()
     {
+        if (!NetworkManager.Singleton.IsServer) // Only allow the server to spawn
+        {
+
+            Debug.LogWarning("Only the server can spawn snowballs!");
+            return;
+        }
+
         if (isSpawning) return; // Prevent multiple calls
         isSpawning = true;
 
@@ -39,9 +46,11 @@ public class ObjectSpawner : MonoBehaviour
             isSpawning = false;
             return;
         }
-
-        networkObject.Spawn();
-        StartCoroutine(ResetSpawnCooldown());
+        else
+        {
+            networkObject.Spawn(); // Spawn the object over the network
+            StartCoroutine(ResetSpawnCooldown());
+        }
     }
 
     private IEnumerator ResetSpawnCooldown()
@@ -50,4 +59,3 @@ public class ObjectSpawner : MonoBehaviour
         isSpawning = false;
     }
 }
-

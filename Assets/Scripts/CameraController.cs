@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
-    [SerializeField] Transform followTarget;
+    public Transform followTarget;
   
 
     [SerializeField] float distance = 5;
 
-    [SerializeField] float rotationspeed = 1f;
+    [SerializeField] float rotationspeed = 0.5f;
 
 
     float rotationY;
@@ -26,12 +26,9 @@ public class CameraController : MonoBehaviour
     float invertXVal;
     float invertYVal;
 
+ 
 
-    private void Start()
-    {
-        
-    }
-
+  
 
     private void Update()
     {
@@ -46,7 +43,7 @@ public class CameraController : MonoBehaviour
         rotationX += Input.GetAxis("Mouse Y") * invertYVal * rotationspeed;
         rotationX = Mathf.Clamp(rotationX, minVerticalAngle, maxverticalAngle);
 
-     var targetRotation = Quaternion.Euler(rotationX,rotationY,0);
+         var targetRotation = Quaternion.Euler(rotationX,rotationY,0);
 
         var focusPosition = followTarget.position + new Vector3(framingOffset.x,framingOffset.y);
 
