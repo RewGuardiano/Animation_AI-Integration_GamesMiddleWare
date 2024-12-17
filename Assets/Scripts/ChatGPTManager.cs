@@ -15,7 +15,7 @@ public class ChatGPTManager : MonoBehaviour
     }
 
 
-    // Hardcoded API Key and Organization ID since configuration file is not working. 
+    // Needed to hardcode API Key and Organization ID since configuration file is not working. 
     private string apiKey = " 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";
     private string organizationId = "org-gYuhgIba3vvel2lmZsBZwwGl";
 
