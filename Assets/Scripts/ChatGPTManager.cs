@@ -31,18 +31,20 @@ public class ChatGPTManager : MonoBehaviour
 
     private void LoadConfiguration()
     {
-        string configPath = Path.Combine(Application.dataPath, "auth.json"); // Path to the config file
+        string configPath = "C:/Users/Work/.openai/auth.json"; 
+
         if (!File.Exists(configPath))
         {
-            Debug.LogError($"Configuration file not found at path: {configPath}");
+            Debug.LogError("Configuration file not found at: " + configPath);
             return;
         }
 
-        string json = File.ReadAllText(configPath);
-        Configuration config = JsonUtility.FromJson<Configuration>(json);
+        string configJson = File.ReadAllText(configPath);
+        Configuration config = JsonUtility.FromJson<Configuration>(configJson);
 
         apiKey = config.apiKey;
         organizationId = config.organizationId;
+
     }
 
     [System.Serializable]
