@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using OpenAI;
 using UnityEngine.Events;
+using System.IO;
 
 public class ChatGPTManager : MonoBehaviour
 {
@@ -13,20 +14,44 @@ public class ChatGPTManager : MonoBehaviour
     {
 
     }
-
-
-    // Needed to hardcode API Key and Organization ID since configuration file is not working. 
-    private string apiKey = "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";
-    private string organizationId = "org-gYuhgIba3vvel2lmZsBZwwGl";
+    private string apiKey; 
+    private string organizationId;
 
 
     private OpenAIApi openAI;
 
     void Awake()
     {
-        // Configure OpenAIApi with the API key and Organization ID
+        LoadConfiguration();
+
+        // Configure OpenAIApi with the loaded API key and Organization ID
         openAI = new OpenAIApi(apiKey, organizationId);
     }
+
+
+    private void LoadConfiguration()
+    {
+        string configPath = Path.Combine(Application.dataPath, "auth.json"); // Path to the config file
+        if (!File.Exists(configPath))
+        {
+            Debug.LogError($"Configuration file not found at path: {configPath}");
+            return;
+        }
+
+        string json = File.ReadAllText(configPath);
+        Configuration config = JsonUtility.FromJson<Configuration>(json);
+
+        apiKey = config.apiKey;
+        organizationId = config.organizationId;
+    }
+
+    [System.Serializable]
+    private class Configuration
+    {
+        public string apiKey;
+        public string organizationId;
+    }
+
 
     private List<ChatMessage> messages = new List<ChatMessage>();
     public async void AskChatGPT(string newText)
