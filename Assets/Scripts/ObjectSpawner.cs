@@ -12,8 +12,6 @@ public class ObjectSpawner : MonoBehaviour
 
     public void Awake()
     {
-
-        
         SpawnButton.onClick.AddListener(SpawnBall);
     }
 
@@ -39,17 +37,26 @@ public class ObjectSpawner : MonoBehaviour
         GameObject snowBallInstance = Instantiate(snowBallCloneTemplate);
 
         NetworkObject networkObject = snowBallInstance.GetComponent<NetworkObject>();
-        if (networkObject == null)
+        if (networkObject != null)
+        {
+            networkObject.Spawn(); // Spawn the object over the network
+                                   // Notify all PlayerController instances
+            ObjectScript objectScript = snowBallInstance.GetComponent<ObjectScript>();
+            if (objectScript != null)
+            {
+                foreach (PlayerController player in FindObjectsOfType<PlayerController>())
+                {
+                    player.AddPickupItem(objectScript);
+                }
+            }
+            StartCoroutine(ResetSpawnCooldown());
+        }
+        else
         {
             Debug.LogError("NetworkObject component is missing on the snowball prefab!");
             Destroy(snowBallInstance);
             isSpawning = false;
             return;
-        }
-        else
-        {
-            networkObject.Spawn(); // Spawn the object over the network
-            StartCoroutine(ResetSpawnCooldown());
         }
     }
 

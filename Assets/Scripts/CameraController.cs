@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 public class CameraController : MonoBehaviour
@@ -27,10 +28,7 @@ public class CameraController : MonoBehaviour
     float invertYVal;
 
  
-
-  
-
-    private void Update()
+    private void LateUpdate()
     {
         if (followTarget == null) return;
 
@@ -44,6 +42,8 @@ public class CameraController : MonoBehaviour
         rotationX = Mathf.Clamp(rotationX, minVerticalAngle, maxverticalAngle);
 
          var targetRotation = Quaternion.Euler(rotationX,rotationY,0);
+
+
 
         var focusPosition = followTarget.position + new Vector3(framingOffset.x,framingOffset.y);
 
