@@ -89,6 +89,9 @@ public class PlayerController : NetworkBehaviour
 
     }
 
+  
+
+
     public void AddPickupItem(ObjectScript item)
     {
         if (!allPickupItems.Contains(item))
@@ -357,7 +360,7 @@ public class PlayerController : NetworkBehaviour
                 print("Host tried to attach object");
 
                 
-                    networkObject.transform.SetParent(RightHand, false); // Keep original world position
+                networkObject.transform.SetParent(RightHand, false); // Keep original world position
                 
 
                 // Sync position and rotation on the server
@@ -405,14 +408,42 @@ public class PlayerController : NetworkBehaviour
     }
 
     private void ThrowObject()
-{
-    if (focusObject != null)
     {
-        animator.SetTrigger("isThrowing");
+        if (isHoldingObject && focusObject != null)
+        {
+            animator.SetTrigger("isThrowing");
 
-        focusObject.transform.SetParent(null);
+            NetworkObject networkObject = focusObject.GetComponent<NetworkObject>();
+            if (networkObject != null)
+            {
+                if (IsServer)
+                {
+                    PerformThrow(focusObject);
+                }
+                else
+                {
+                    SubmitThrowRequestServerRpc(networkObject.NetworkObjectId);
+                }
+            }
 
-        Rigidbody rb = focusObject.GetComponent<Rigidbody>();
+            focusObject = null;
+            isHoldingObject = false;
+        }
+    }
+
+    [ServerRpc]
+    private void SubmitThrowRequestServerRpc(ulong objectId)
+    {
+        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(objectId, out NetworkObject networkObject))
+        {
+            PerformThrow(networkObject.GetComponent<ObjectScript>());
+        }
+    }
+
+    private void PerformThrow(ObjectScript obj)
+    {
+        obj.transform.SetParent(null);
+        Rigidbody rb = obj.GetComponent<Rigidbody>();
         if (rb != null)
         {
             rb.isKinematic = false;
@@ -423,52 +454,12 @@ public class PlayerController : NetworkBehaviour
             rb.AddForce(throwDirection * throwForce, ForceMode.Impulse);
         }
 
-        Collider col = focusObject.GetComponent<Collider>();
-        if (col != null)
-        {
-            col.enabled = true;
-        }
-
-        focusObject = null;
-        isHoldingObject = false;
-    }
-}
-
-    [ServerRpc]
-    private void SubmitThrowRequestServerRpc(ulong objectId)
-    {
-        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(objectId, out NetworkObject networkObject))
-        {
-            var obj = networkObject.GetComponent<ObjectScript>();
-            if (obj != null)
-            {
-                networkObject.TrySetParent((GameObject)null);
-                ApplyThrowForce(obj);
-            }
-        }
-    }
-
-    private void ApplyThrowForce(ObjectScript obj)
-    {
-        var objRigidbody = obj.GetComponent<Rigidbody>();
-        if (objRigidbody != null)
-        {
-            objRigidbody.isKinematic = false;
-            objRigidbody.collisionDetectionMode = CollisionDetectionMode.Continuous;
-
-            // Apply throw force
-            Vector3 throwDirection = transform.forward + Vector3.up * 0.6f;
-            float throwForce = 10f;
-            objRigidbody.AddForce(throwDirection * throwForce, ForceMode.Impulse);
-        }
-
-        var objCollider = obj.GetComponent<Collider>();
+        Collider objCollider = obj.GetComponent<Collider>();
         if (objCollider != null)
         {
             objCollider.enabled = true;
         }
     }
-
 
     private void OnDrawGizmos()
     {
