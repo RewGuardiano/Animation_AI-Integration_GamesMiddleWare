@@ -17,9 +17,8 @@ public class ObjectSpawner : MonoBehaviour
 
     public void SpawnBall()
     {
-        if (!NetworkManager.Singleton.IsServer) // Only allow the server to spawn
+        if (!NetworkManager.Singleton.IsServer) // This is correct
         {
-
             Debug.LogWarning("Only the server can spawn snowballs!");
             return;
         }
@@ -39,16 +38,14 @@ public class ObjectSpawner : MonoBehaviour
         NetworkObject networkObject = snowBallInstance.GetComponent<NetworkObject>();
         if (networkObject != null)
         {
-            networkObject.Spawn(); // Spawn the object over the network
-                                   // Notify all PlayerController instances
+            networkObject.Spawn(true); // Spawn the object over the network
+            // Notify all PlayerController instances about this new pickupable object
             ObjectScript objectScript = snowBallInstance.GetComponent<ObjectScript>();
             if (objectScript != null)
             {
-                foreach (PlayerController player in FindObjectsOfType<PlayerController>())
-                {
-                    player.AddPickupItem(objectScript);
-                }
+                NotifyClientsAboutPickupableObject(objectScript); // Call the new method here
             }
+
             StartCoroutine(ResetSpawnCooldown());
         }
         else
@@ -59,6 +56,25 @@ public class ObjectSpawner : MonoBehaviour
             return;
         }
     }
+    private void NotifyClientsAboutPickupableObject(ObjectScript objectScript)
+    {
+        AddPickupItemClientRpc(objectScript.NetworkObjectId);
+    }
+
+    [ClientRpc]
+    private void AddPickupItemClientRpc(ulong networkObjectId)
+    {
+        NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(networkObjectId, out NetworkObject networkObject);
+        if (networkObject != null && networkObject.TryGetComponent(out ObjectScript objectScript))
+        {
+            foreach (PlayerController player in FindObjectsOfType<PlayerController>())
+            {
+                player.AddPickupItem(objectScript);
+            }
+        }
+    }
+
+
 
     private IEnumerator ResetSpawnCooldown()
     {
